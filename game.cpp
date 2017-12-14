@@ -305,22 +305,52 @@ int main(int argc, char* argv[])
     applyDiamondBuff(s2);
 
     // RESOLVE ATTACK
+    // helper function: check for attack and critical hit
+    const auto resolveAttack = [](CardType action1, char diamond1, char diamond2)->int
+    {
+      const auto char2index = [](char ch)->int {
+        switch(ch) {
+          case 'B': return 0;
+          case 'R': return 1;
+          case 'L': return 2;
+          case 'F': return 3;
+        }
+        return 0;
+      };
+
+      int gunDamage[4][4] = {{0,1,1,2},
+                             {0,0,0,1},
+                             {0,0,0,1},
+                             {0,0,0,0}};
+
+      int mineDamage[4][4] = {{0,0,0,0},
+                              {1,0,0,0},
+                              {1,0,0,0},
+                              {1,1,1,0}};
+
+      int from = char2index(diamond1);
+      int to   = char2index(diamond2);
+
+      if(action1==Gun) {
+        return gunDamage[from][to];
+      }
+
+      if(action1==Mine) {
+        return mineDamage[from][to];
+      }
+
+      return 0;
+    };
+
     if(c1==Gun || c1==Mine || c2==Gun || c2==Mine) {
       printf("**** RESOLVE DAMAGE ****\n\n");
-      printf("Vehicle A diamond=%c\n", s1.diamond);
-      printf("Vehicle B diamond=%c\n", s2.diamond);
-
-      printf("Vehicle A damage? ");
-      int damageA;
-      cin >> damageA;
+      int damageA = resolveAttack(c2, s2.diamond, s1.diamond);
       if(damageA != 0) {
         s1.speed = max(0, s1.speed - max(0, damageA - s1.maneuvering));
         s1.maneuvering = (s1.maneuvering < damageA) ? 0 : (s1.maneuvering-damageA);
       }
 
-      printf("Vehicle B damage? ");
-      int damageB;
-      cin >> damageB;
+      int damageB = resolveAttack(c1, s1.diamond, s2.diamond);
       if(damageB != 0) {
         s2.speed = max(0, s2.speed - max(0, damageB - s2.maneuvering));
         s2.maneuvering = (s2.maneuvering < damageB) ? 0 : (s2.maneuvering-damageB);
