@@ -239,29 +239,38 @@ int main(int argc, char* argv[])
     
     // RESOLVE STEERING/BRAKING INPUTS
     if(c1==Steer || c2==Steer || c1==Brake || c2==Brake) {
-      clearScreen();
-      showState();
-      printf("**** RESOLVE DIAMOND ****\n\n");
-      printf("Vehicle A diamond (current=%c)? ", s1.diamond);
-      const auto& validDiamond1 = getValidDiamondTargets(c1,s1.diamond);
-      cout << "Choose from { ";
-      for(auto& ch : validDiamond1) {
-        cout << ch << " ";
-      }
-      cout << "}" << endl;
-      char d1 = BlockingInput<char>(validDiamond1);
+      char d1 = s1.diamond;
+      char d2 = s2.diamond;
 
-      clearScreen();
-      showState();
-      printf("**** RESOLVE DIAMOND ****\n\n");
-      printf("Vehicle B diamond (current=%c)? ", s2.diamond);
-      const auto& validDiamond2 = getValidDiamondTargets(c2,s2.diamond);
-      cout << "Choose from { ";
-      for(auto& ch : validDiamond2) {
-        cout << ch << " ";
+      // prompt if the player requested a change
+      if(c1==Brake || c1==Steer) {
+        clearScreen();
+        showState();
+        printf("**** RESOLVE DIAMOND ****\n\n");
+        printf("Vehicle A diamond (current=%c)? ", s1.diamond);
+        const auto& validDiamond1 = getValidDiamondTargets(c1,s1.diamond);
+        cout << "Choose from { ";
+        for(auto& ch : validDiamond1) {
+          cout << ch << " ";
+        }
+        cout << "}" << endl;
+        d1 = BlockingInput<char>(validDiamond1);
       }
-      cout << "}" << endl;
-      char d2 = BlockingInput<char>(validDiamond2);
+
+      // prompt if the player requested a change
+      if(c2==Brake || c2==Steer) {
+        clearScreen();
+        showState();
+        printf("**** RESOLVE DIAMOND ****\n\n");
+        printf("Vehicle B diamond (current=%c)? ", s2.diamond);
+        const auto& validDiamond2 = getValidDiamondTargets(c2,s2.diamond);
+        cout << "Choose from { ";
+        for(auto& ch : validDiamond2) {
+          cout << ch << " ";
+        }
+        cout << "}" << endl;
+        d2 = BlockingInput<char>(validDiamond2);
+      }
 
       // resolve by honoring swaps, and if there's a collide it's random
       if(d1==d2) {
