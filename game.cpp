@@ -41,6 +41,16 @@ struct PlayerStats
   int points;
 };
 
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+struct WorldState
+{
+  char _dr;
+  char _df;
+  char _dl;
+  char _db;
+};
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // helper function for player prompts
 template<typename T>
@@ -130,11 +140,28 @@ int main(int argc, char* argv[])
   printf("...initialized\n");
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // helper function: shows current state of player positions
+  const auto showDiamond = [&]() {
+      printf("___* Player Position *___\n");
+      //use stateA.diamond & use stateB.diamond
+
+      printf(" _ r:%s _ \n","q");
+      printf("b:%s _ f:%s \n","q","q");
+      printf(" _ l:%s _ \n","q");
+  };
+
+  const auto updateWorldState = [&](){
+
+
+  };
+
   // helper function: prints the state of the game (scores and stats)
   const auto showState = [&]() {
     printf("*\n*\n*\n");
     printf("Player %s has S=%d, M=%d, T=%d, D=%c (Points=%2d)\n", "A", stateA.speed, stateA.maneuvering, stateA.traction, stateA.diamond, stateA.points);
     printf("Player %s has S=%d, M=%d, T=%d, D=%c (Points=%2d)\n", "B", stateB.speed, stateB.maneuvering, stateB.traction, stateB.diamond, stateB.points);
+
+    showDiamond();
 
     cout << endl;
     cout << endl;
@@ -285,6 +312,9 @@ int main(int argc, char* argv[])
         s1.diamond = d1;
         s2.diamond = d2;
       }
+
+      //update display position
+
     }
 
     // APPLY DIAMOND BUFF
