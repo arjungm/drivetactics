@@ -18,59 +18,6 @@ enum CardType
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-template <typename T>
-class Deck
-{
-public:
-
-  Deck(const vector<pair<T,size_t> >& config)
-  : _cards()
-  {
-    for(const auto& item : config) {
-      for(size_t i=0; i<item.second; ++i) {
-        _cards.push_back(item.first);
-      }
-    }
-
-    random_shuffle(_cards.begin(), _cards.end());
-  }
-
-  T Draw()
-  {
-    T ret = _cards.back();
-    _cards.pop_back();
-    return ret;
-  }
-
-  const T& Peek(size_t index = 0)
-  {
-    index = _cards.size() - index;
-    return _cards[index];
-  }
-
-  bool empty() const
-  {
-    return _cards.empty();
-  }
-  
-private:
-
-  vector<T> _cards;
-};
-
-/*
-
-  switch(t) {
-    case Gas:
-    case Steer:
-    case Brake:
-    case Gun:
-    case Mine:
-  }
-
-*/
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 string to_string(CardType t)
 {
   switch(t) {
@@ -95,16 +42,7 @@ struct PlayerStats
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const vector<pair<CardType, size_t> > kMainConfig =
-{
- {Gas,10},
- {Steer,5},
- {Brake,5},
- {Gun,6},
- {Mine,4}
-};
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// helper function for player prompts
 template<typename T>
 T BlockingInput(const vector<T>& valid)
 {
@@ -124,6 +62,7 @@ T BlockingInput(const vector<T>& valid)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// helper class for diamond-repositioning randomness
 template<typename T>
 class PseudoRandomHelper
 {
@@ -151,10 +90,6 @@ private:
 
   size_t _head;
 };
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-typedef Deck<CardType> MyDeck;
-typedef vector<CardType> Hand;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 int main(int argc, char* argv[])
@@ -195,7 +130,7 @@ int main(int argc, char* argv[])
   printf("...initialized\n");
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // helper function
+  // helper function: prints the state of the game (scores and stats)
   const auto showState = [&]() {
     printf("*\n*\n*\n");
     printf("Player %s has S=%d, M=%d, T=%d, D=%c (Points=%2d)\n", "A", stateA.speed, stateA.maneuvering, stateA.traction, stateA.diamond, stateA.points);
@@ -224,7 +159,7 @@ int main(int argc, char* argv[])
   };
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // helper function
+  // helper function: prompts the player for an action
   const auto handlePlayerInput = [kValid5=kValid5,&showState,&clearScreen]()->CardType
   {
     stringstream ss;
@@ -242,8 +177,8 @@ int main(int argc, char* argv[])
   };
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // helper function
-
+  // helper function: resolve the inputs of the player actions
+  // STEPS = { Stat update, Diamond reposition, Damage calculation, Scoring }
   const auto resolveRound = [kValidDiamond=kValidDiamond,&rngD,&showState,&clearScreen]
                               (PlayerStats& s1, CardType c1,
                                PlayerStats& s2, CardType c2,
