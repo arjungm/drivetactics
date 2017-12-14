@@ -7,6 +7,7 @@
 
 using namespace std;
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 enum CardType
 {
   Gas,
@@ -16,6 +17,7 @@ enum CardType
   Mine
 };
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 template <typename T>
 class Deck
 {
@@ -68,6 +70,7 @@ private:
 
 */
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 string to_string(CardType t)
 {
   switch(t) {
@@ -79,6 +82,7 @@ string to_string(CardType t)
   }
 }
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 struct PlayerStats
 {
   int speed;
@@ -90,6 +94,7 @@ struct PlayerStats
   int points;
 };
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const vector<pair<CardType, size_t> > kMainConfig =
 {
  {Gas,10},
@@ -99,6 +104,7 @@ const vector<pair<CardType, size_t> > kMainConfig =
  {Mine,4}
 };
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 template<typename T>
 T BlockingInput(const vector<T>& valid)
 {
@@ -117,6 +123,7 @@ T BlockingInput(const vector<T>& valid)
   return input;
 }
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 template<typename T>
 class PseudoRandomHelper
 {
@@ -145,11 +152,15 @@ private:
   size_t _head;
 };
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 typedef Deck<CardType> MyDeck;
 typedef vector<CardType> Hand;
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 int main(int argc, char* argv[])
 {
+  size_t zoneIndex = 0;
+
   // input the encounter list (aka the track)
   vector<int> zones;
   int zoneInput = 0;
@@ -165,24 +176,9 @@ int main(int argc, char* argv[])
     }
   }
 
-  size_t zoneIndex = 0;
-  
-  /*
-  MyDeck deckA(kMainConfig);
-  MyDeck deckB(kMainConfig);
-
-  Hand handA;
-  Hand handB;
-  for(int i=0; i<5; i++) {
-    handA.push_back(deckA.Draw());
-    handB.push_back(deckB.Draw());
-  }
-  */
-  
   printf("**** INIT ****\n");
   vector<size_t> kValid5({1,2,3,4,5});
   vector<char> kValidDiamond({'F','R','L','B'});
-  
   PlayerStats stateA { 1, 0, 3, 'R', 0 };
   PlayerStats stateB { 1, 0, 3, 'L', 0 };
 
@@ -199,6 +195,7 @@ int main(int argc, char* argv[])
   printf("...initialized\n");
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // helper function
   const auto showState = [&]() {
     printf("*\n*\n*\n");
     printf("Player %s has S=%d, M=%d, T=%d, D=%c (Points=%2d)\n", "A", stateA.speed, stateA.maneuvering, stateA.traction, stateA.diamond, stateA.points);
@@ -227,7 +224,7 @@ int main(int argc, char* argv[])
   };
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+  // helper function
   const auto handlePlayerInput = [kValid5=kValid5,&showState,&clearScreen]()->CardType
   {
     stringstream ss;
@@ -245,12 +242,15 @@ int main(int argc, char* argv[])
   };
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // helper function
 
   const auto resolveRound = [kValidDiamond=kValidDiamond,&rngD,&showState,&clearScreen]
                               (PlayerStats& s1, CardType c1,
                                PlayerStats& s2, CardType c2,
                                int zoneVal)
   {
+    // RESOLVE STAT UPDATES
+    // helper function
     const auto statUpdates = [](PlayerStats& s, CardType c)
     {
       switch(c) {
@@ -275,10 +275,10 @@ int main(int argc, char* argv[])
           break;
       }
     };
-
     statUpdates(s1,c1);
     statUpdates(s2,c2);
     
+    // RESOLVE STEERING/BRAKING INPUTS
     if(c1==Steer || c2==Steer || c1==Brake || c2==Brake) {
       clearScreen();
       showState();
@@ -307,6 +307,8 @@ int main(int argc, char* argv[])
       }
     }
 
+    // APPLY DIAMOND BUFF
+    // helper function
     const auto applyDiamondBuff = [](PlayerStats& s) {
       switch(s.diamond) {
         case 'F': s.speed = min(s.speed+1, 4); break;
@@ -319,10 +321,10 @@ int main(int argc, char* argv[])
                   break;
       }
     };
-
     applyDiamondBuff(s1);
     applyDiamondBuff(s2);
 
+    // RESOLVE ATTACK
     if(c1==Gun || c1==Mine || c2==Gun || c2==Mine) {
       printf("**** RESOLVE DAMAGE ****\n\n");
       printf("Vehicle A diamond=%c\n", s1.diamond);
@@ -345,7 +347,7 @@ int main(int argc, char* argv[])
       }
     }
 
-    // scoring
+    // PER-ROUND SCORING
     int ws,wm,wt;
     switch(zoneVal) {
       case 1: /*SS*/ ws= 2; wm= 0; wt= 0; break;
@@ -359,7 +361,7 @@ int main(int argc, char* argv[])
   };
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+  // MAIN
   printf("**** BEGIN GAME ****\n");
   size_t lapCount = 0;
   while(lapCount < 5) {
