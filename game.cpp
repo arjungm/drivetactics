@@ -212,6 +212,30 @@ int main(int argc, char* argv[])
     };
     statUpdates(s1,c1);
     statUpdates(s2,c2);
+
+    // helper function: determine where you can steer/brake towards
+    const auto getValidDiamondTargets = [&](CardType c, char diamond)->vector<char>
+    {
+      if(c==Steer) {
+        switch(diamond) {
+          case 'F': return {'F'};
+          case 'R': return {'R','L','F'};
+          case 'L': return {'R','L','F'};
+          case 'B': return kValidDiamond;
+        }
+      }
+
+      if(c==Brake) {
+        switch(diamond) {
+          case 'B': return {'B'};
+          case 'R': return {'R','L','B'};
+          case 'L': return {'R','L','B'};
+          case 'F': return kValidDiamond;
+        }
+      }
+
+      return kValidDiamond;
+    };
     
     // RESOLVE STEERING/BRAKING INPUTS
     if(c1==Steer || c2==Steer || c1==Brake || c2==Brake) {
@@ -219,13 +243,25 @@ int main(int argc, char* argv[])
       showState();
       printf("**** RESOLVE DIAMOND ****\n\n");
       printf("Vehicle A diamond (current=%c)? ", s1.diamond);
-      char d1 = BlockingInput<char>(kValidDiamond);
+      const auto& validDiamond1 = getValidDiamondTargets(c1,s1.diamond);
+      cout << "Choose from { ";
+      for(auto& ch : validDiamond1) {
+        cout << ch << " ";
+      }
+      cout << "}" << endl;
+      char d1 = BlockingInput<char>(validDiamond1);
 
       clearScreen();
       showState();
       printf("**** RESOLVE DIAMOND ****\n\n");
       printf("Vehicle B diamond (current=%c)? ", s2.diamond);
-      char d2 = BlockingInput<char>(kValidDiamond);
+      const auto& validDiamond2 = getValidDiamondTargets(c2,s2.diamond);
+      cout << "Choose from { ";
+      for(auto& ch : validDiamond2) {
+        cout << ch << " ";
+      }
+      cout << "}" << endl;
+      char d2 = BlockingInput<char>(validDiamond2);
 
       // resolve by honoring swaps, and if there's a collide it's random
       if(d1==d2) {
