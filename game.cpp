@@ -41,16 +41,6 @@ struct PlayerStats
   int points;
 };
 
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-struct WorldState
-{
-  char _dr;
-  char _df;
-  char _dl;
-  char _db;
-};
-
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // helper function for player prompts
 template<typename T>
@@ -144,15 +134,28 @@ int main(int argc, char* argv[])
   const auto showDiamond = [&]() {
       printf("___* Player Position *___\n");
       //use stateA.diamond & use stateB.diamond
+      char worldR = ' ';
+      char worldF = ' ';
+      char worldL = ' ';
+      char worldB = ' ';
 
-      printf(" _ r:%s _ \n","q");
-      printf("b:%s _ f:%s \n","q","q");
-      printf(" _ l:%s _ \n","q");
-  };
+      switch(stateA.diamond){
+        case 'R': worldR = 'A'; break;
+        case 'F': worldF = 'A'; break;
+        case 'L': worldL = 'A'; break;
+        case 'B': worldB = 'A'; break;
+      }
 
-  const auto updateWorldState = [&](){
+      switch(stateB.diamond){
+        case 'R': worldR = 'B'; break;
+        case 'F': worldF = 'B'; break;
+        case 'L': worldL = 'B'; break;
+        case 'B': worldB = 'B'; break;
+      }
 
-
+      printf(" _ r:%c _ \n",worldR);
+      printf("b:%c _ f:%c \n",worldB,worldF);
+      printf(" _ l:%c _ \n",worldL);
   };
 
   // helper function: prints the state of the game (scores and stats)
@@ -312,9 +315,6 @@ int main(int argc, char* argv[])
         s1.diamond = d1;
         s2.diamond = d2;
       }
-
-      //update display position
-
     }
 
     // APPLY DIAMOND BUFF
