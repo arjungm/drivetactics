@@ -130,11 +130,41 @@ int main(int argc, char* argv[])
   printf("...initialized\n");
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // helper function: shows current state of player positions
+  const auto showDiamond = [&]() {
+      printf("___* Player Position *___\n");
+      //use stateA.diamond & use stateB.diamond
+      char worldR = ' ';
+      char worldF = ' ';
+      char worldL = ' ';
+      char worldB = ' ';
+
+      switch(stateA.diamond){
+        case 'R': worldR = 'A'; break;
+        case 'F': worldF = 'A'; break;
+        case 'L': worldL = 'A'; break;
+        case 'B': worldB = 'A'; break;
+      }
+
+      switch(stateB.diamond){
+        case 'R': worldR = 'B'; break;
+        case 'F': worldF = 'B'; break;
+        case 'L': worldL = 'B'; break;
+        case 'B': worldB = 'B'; break;
+      }
+
+      printf(" _ r:%c _ \n",worldR);
+      printf("b:%c _ f:%c \n",worldB,worldF);
+      printf(" _ l:%c _ \n",worldL);
+  };
+
   // helper function: prints the state of the game (scores and stats)
   const auto showState = [&]() {
     printf("*\n*\n*\n");
     printf("Player %s has S=%d, M=%d, T=%d, D=%c (Points=%2d)\n", "A", stateA.speed, stateA.maneuvering, stateA.traction, stateA.diamond, stateA.points);
     printf("Player %s has S=%d, M=%d, T=%d, D=%c (Points=%2d)\n", "B", stateB.speed, stateB.maneuvering, stateB.traction, stateB.diamond, stateB.points);
+
+    showDiamond();
 
     cout << endl;
     cout << endl;
